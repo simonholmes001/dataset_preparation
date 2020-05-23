@@ -26,5 +26,5 @@ class DistanceMatrix:
         return self.flatten
 
     def save_file(self):
-        with open(self.destination_path + '/' + self.name.split('_')[0] + '_distance_label.pickle', 'wb', buffering=500000000) as file:
+        with open(self.destination_path + '/' + self.name.split('_')[0] + '_labels.pickle', 'wb', buffering=500000000) as file:
             pickle.dump(self.flatten, file, protocol=4) # Save as a pickle object
