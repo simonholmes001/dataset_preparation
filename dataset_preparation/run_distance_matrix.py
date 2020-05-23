@@ -8,7 +8,8 @@ import argparse
 parser = argparse.ArgumentParser(description='To set to the path to the data')
 parser.add_argument('-s', '--source_path', help='An input path where the data is located', required=True)
 parser.add_argument('-d', '--destination_path', help='An output path to save the statistics', required=True)
-parser.add_argument('-t', '--tensor_dimension', help='The tensor dimension to pad all tensors to', required=True)
+parser.add_argument('-z', '--tensor_dimension', help='The tensor dimension to pad all tensors to', required=True)
+parser.add_argument('-z', '--tensor_dimension', help='The tensor dimension to pad all tensors to', required=True)
 
 args = parser.parse_args()
 

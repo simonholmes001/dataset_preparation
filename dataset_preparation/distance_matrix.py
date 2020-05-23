@@ -24,27 +24,16 @@ class DistanceMatrix:
             upper_triangle = torch.triu(holder, diagonal=1)
             q = upper_triangle.shape
             print("The shape of q is {} by {}".format(q[0], q[1]))
-            try:
-                down_pad = self.tensor_dimension - q[0]
-            except:
-                print(self.name.split('_')[0])
-                pass
-            try:
-                right_pad = self.tensor_dimension - q[1]
-            except:
-                pass
-            try:
-                print("The down pad is: {}".format(down_pad))
-                print("The right pad is: {}".format(right_pad))
-            except:
-                pass
-            try:
-                m = torch.nn.ZeroPad2d((0,right_pad,0,down_pad))
-                x = m(upper_triangle)
-                print("Final shape of {} is: {}".format(self.name.split('_')[0], x.shape))
-            except:
-                pass
-            self.flatten = torch.flatten(upper_triangle)
+            down_pad = self.tensor_dimension - q[0]
+            print(self.name.split('_')[0])
+            right_pad = self.tensor_dimension - q[1]
+            print("The down pad is: {}".format(down_pad))
+            print("The right pad is: {}".format(right_pad))
+            m = torch.nn.ZeroPad2d((0,right_pad,0,down_pad))
+            padded = m(upper_triangle)
+            print("Final shape of {} is: {}".format(self.name.split('_')[0], padded.shape))
+
+            self.flatten = torch.flatten(padded)
 
         return self.flatten
 
