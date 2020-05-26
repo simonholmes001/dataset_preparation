@@ -1,7 +1,7 @@
 import os
 from tqdm import tqdm
 
-from distance_matrix import DistanceMatrix
+from features_same_size import FeaturesMatrix
 
 import argparse
 
@@ -19,9 +19,9 @@ tensor_dimension = args.tensor_dimension
 def main(source_path, destination_path, tensor_dimension):
     for root, dirs, files in os.walk(source_path, topdown=False):
         for name in tqdm(files):
-            dis = DistanceMatrix(source_path, destination_path, name.split('_')[0], tensor_dimension)
-            dis.standardise_flatten_distance_matrix()
-            dis.save_file()
+            feat = FeaturesMatrix(source_path, destination_path, name.split('_')[0], tensor_dimension)
+            feat.features_same_size()
+            feat.save_file()
 
 if __name__ == '__main__':
     main(source_path, destination_path, tensor_dimension)

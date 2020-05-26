@@ -45,7 +45,7 @@ df = df.drop(df.index[1])
 df = df.rename(index={'phi':tag})
 print(df)
 print("Saving dataframe for amino acid {}...".format(name))
-df.to_csv(path + '/' + name + '_features.csv', encoding='utf-8', index=False, header=None)
+df.to_csv(path + '/' + name + '_features.csv', encoding='utf-8')
 
 
 

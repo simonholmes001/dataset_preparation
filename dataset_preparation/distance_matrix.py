@@ -1,7 +1,9 @@
+import numpy as np
 import torch
 torch.cuda.empty_cache()
 # device = torch.device('cuda')
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 import pickle
 
 class DistanceMatrix:
@@ -15,13 +17,18 @@ class DistanceMatrix:
         self.destination_path = destination_path
         self.tensor_dimension = tensor_dimension
 
-    def flatten_distance_matrix(self):
+    def standardise_flatten_distance_matrix(self):
         """
         :return:
         """
         with open(self.source_path + '/' + self.name + '_label.pickle', 'rb') as labels_file:
+            print("Converting to numpy array and standardising...")
             holder = pd.read_pickle(labels_file)
-            upper_triangle = torch.triu(holder, diagonal=1)
+            array = holder.numpy() # Convert pytorch tensor to numpy array to perform standardisation
+            scaler = StandardScaler()
+            scaled_values = scaler.fit_transform(array)
+            new_tensor = torch.from_numpy(scaled_values)
+            upper_triangle = torch.triu(new_tensor, diagonal=1)
             q = upper_triangle.shape
             print("The shape of q is {} by {}".format(q[0], q[1]))
             down_pad = self.tensor_dimension - q[0]
