@@ -18,7 +18,9 @@ data = {0:["ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS", "ILE",
                6137, 6140, 614, 5951, 6288, 6305, 6057, 6287]}
 amino_acids_df = pd.DataFrame.from_dict(data)
 amino_acids_df.rename(columns={0:'amino_acid_label'}, inplace=True)
-standardised_features_df = pd.read_csv('./standardised_features_3.csv')
+standardised_features_df = pd.read_csv('./MinMaxFeatures.csv')
+
+# Uses as input the amino acid tag file (.csv), which is also the output_directory
 
 class MergeAAFeatures:
 
@@ -38,7 +40,7 @@ class MergeAAFeatures:
             for name in tqdm(files):
                 if 'amino_' in name:
                     print(name)
-                    amino_df = pd.read_csv(self.walk_path +'/' + name, header=None)
+                    amino_df = pd.read_csv(self.walk_path + name, header=None)
                     amino_df.rename(columns={0:'amino_acid_label'}, inplace=True)
                     merge_features_and_protein_tag = pd.merge(amino_df, merge_amino_acids_and_features, on='amino_acid_label', how='left')  # Join the databases
                     merge_features_and_amino = pd.merge(amino_df, merge_amino_acids_and_features, on='amino_acid_label', how='left')  # Join the databases
@@ -47,7 +49,7 @@ class MergeAAFeatures:
                     features_to_array = merge_features_and_amino.drop(columns=['amino_acid_label'], axis=1).to_numpy()
                     features_to_tensor = torch.from_numpy(features_to_array) # Convert to pytorch tensor
                     try:
-                        with open(self.walk_path + '/' + name.split('_')[0] + '_features.pickle', 'wb', buffering=500000000) as file:
+                        with open(self.walk_path + name.split('_')[0] + '_features.pickle', 'wb', buffering=500000000) as file:
                             pickle.dump(features_to_tensor, file) # Save as a pickle object
                     except:
                         pass

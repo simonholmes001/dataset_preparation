@@ -2,9 +2,9 @@
 
 # Script to unpack the test_data.gz files
 
-SOURCE='/media/kovan_ai_tor_the_beast/hard_drive_2/TEST_DATA/features'
 
-cd $SOURCE
+# Add in a path to the data - VERY NECESSARY TO AVOID MAKING A MESS OF YOUR FILE STRUCTURE!!!
+cd $*
 for dir in */
 do
     cd ${dir}

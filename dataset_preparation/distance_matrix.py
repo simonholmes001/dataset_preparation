@@ -1,8 +1,7 @@
-import numpy as np
 import torch
+from torch import nn
 torch.cuda.empty_cache()
-# device = torch.device('cuda')
-import pandas as pd
+from sklearn import preprocessing
 from sklearn.preprocessing import StandardScaler
 import pickle
 
@@ -21,29 +20,43 @@ class DistanceMatrix:
         """
         :return:
         """
-        with open(self.source_path + '/' + self.name + '_label.pickle', 'rb') as labels_file:
-            print("Converting to numpy array and standardising...")
-            holder = pd.read_pickle(labels_file)
+        with open(self.source_path + self.name.split('_')[0] + '_label.pickle', 'rb') as labels_file:
+            holder = pickle.load(labels_file)
             array = holder.numpy() # Convert pytorch tensor to numpy array to perform standardisation
-            scaler = StandardScaler()
-            scaled_values = scaler.fit_transform(array)
-            new_tensor = torch.from_numpy(scaled_values)
+
+            # scaler = StandardScaler() # Comment out if no standardisation is required
+            # scaled_values = scaler.fit_transform(array) # Comment out if no standardisation is required
+            # new_tensor = torch.from_numpy(scaled_values) # Comment out if no standardisation is required
+
+            normalised = preprocessing.normalize(array, norm='l2') # Comment out if no normalisation is required
+            new_tensor = torch.from_numpy(normalised) # Comment out if no normalisation is required
+
+            # new_tensor = torch.from_numpy(array) # Comment out if running standardisation or normalisation
+
+            # Take the upper triangle
+
             upper_triangle = torch.triu(new_tensor, diagonal=1)
-            q = upper_triangle.shape
-            print("The shape of q is {} by {}".format(q[0], q[1]))
-            down_pad = self.tensor_dimension - q[0]
-            print(self.name.split('_')[0])
-            right_pad = self.tensor_dimension - q[1]
-            print("The down pad is: {}".format(down_pad))
-            print("The right pad is: {}".format(right_pad))
-            m = torch.nn.ZeroPad2d((0,right_pad,0,down_pad))
-            padded = m(upper_triangle)
-            print("Final shape of {} is: {}".format(self.name.split('_')[0], padded.shape))
+            flat = torch.flatten(upper_triangle)
 
-            self.flatten = torch.flatten(padded)
+            non_zero = []
+            non_zero.clear()
+            for i in flat:
+                if i == 0:
+                    pass
+                else:
+                    non_zero.append(i)
 
-        return self.flatten
+            up = torch.tensor(non_zero, dtype=torch.float64)
+
+            # Pad the tensor
+
+            target_tensor_dimension = int(self.tensor_dimension * (self.tensor_dimension - 1)/2)
+            pad = target_tensor_dimension - up.shape[0]
+
+            self.padded = nn.ConstantPad1d((0, pad), 0)(up)
+
+        return self.padded
 
     def save_file(self):
-        with open(self.destination_path + '/' + self.name.split('_')[0] + '_labels.pickle', 'wb', buffering=500000000) as file:
-            pickle.dump(self.flatten, file, protocol=4) # Save as a pickle object
+        with open(self.destination_path + self.name.split('_')[0] + '_labels.pickle', 'wb', buffering=500000000) as file:
+            pickle.dump(self.padded, file, protocol=4) # Save as a pickle object
