@@ -9,14 +9,16 @@ import argparse
 DON'T FORGET TO CHANGE THE PATHS!!!!!!!
 """
 
+"""
+INPUT_PATH IS ALWAYS /media/the_beast/disk/protein_folding/amino_acid_tags/
+"""
+
 parser = argparse.ArgumentParser(description='Dataset Pipeline')
-parser.add_argument('-i', '--input_path', help='The input path containing the amino acid tags of the proteins downloaded from the PDB', required=True) # Source for the amino acid tags
+parser.add_argument('-i', '--input_path', help='The input path containing the amino acid tags of the proteins downloaded from the PDB', required=True) # Source for the amino acid tags (on Disk)
 parser.add_argument('-p', '--check_path', help='The path containing the train dataset, required only for creating the test dataset', required=False)
 parser.add_argument('-l', '--target_length', type=int, help='The upper limit of protein size', required=True)
 parser.add_argument('-s', '--dataset_size', type=int, help='Size of dataset to prepare', required=True)
 parser.add_argument('-m', '--model_type', help='Type of dataset to prepare, train or test', required=True)
-
-# INPUT_PATH IS ALWAYS /media/the_beast/disk/protein_folding/amino_acid_tags/
 
 args = parser.parse_args()
 
@@ -106,11 +108,11 @@ class DataPipeline:
 
     def prepare_train_set(self):
 
-        tag_destination = '/media/the_beast/A/mathisi_tests/data/tags/'
+        tag_destination = '/media/the_beast/A/mathisi_tests/data/transformed/tags/'
         label_input_path = '/media/the_beast/disk/protein_folding/pickle_files/pickle_label_gz/'
-        distance_destination = '/media/the_beast/A/mathisi_tests/data/distance_matrix/'
+        distance_destination = '/media/the_beast/A/mathisi_tests/data/transformed/distance_matrix/'
         features_input_path = '/media/the_beast/disk/protein_folding/pickle_files/pickle_features_gz/'
-        features_destination = '/media/the_beast/A/mathisi_tests/data/features/'
+        # features_destination = '/media/the_beast/A/mathisi_tests/data/features/'
 
         for t in self.tag:
             shutil.copy(self.input_path + t + '_amino_acid_tag_.csv', tag_destination)
@@ -122,20 +124,20 @@ class DataPipeline:
                 print(f"Distance file NOK: {t}")
                 pass
 
-        for t in self.tag:
-            try:
-                shutil.copy(features_input_path + t + '_feature.pickle.gz', features_destination)
-            except:
-                print(f"Feature file NOK: {t}")
-                pass
+        # for t in self.tag:
+        #     try:
+        #         shutil.copy(features_input_path + t + '_feature.pickle.gz', features_destination)
+        #     except:
+        #         print(f"Feature file NOK: {t}")
+        #         pass
 
     def prepare_test_set(self):
 
-        tag_destination = '/media/the_beast/A/mathisi_tests/data/testset/tags/'
+        tag_destination = '/media/the_beast/A/mathisi_tests/data/transformed/testset/tags/'
         label_input_path = '/media/the_beast/disk/protein_folding/pickle_files/pickle_label_gz/'
-        distance_destination = '/media/the_beast/A/mathisi_tests/data/testset/distance_matrix/'
+        distance_destination = '/media/the_beast/A/mathisi_tests/data/transformed/testset/distance_matrix/'
         features_input_path = '/media/the_beast/disk/protein_folding/pickle_files/pickle_features_gz/'
-        features_destination = '/media/the_beast/A/mathisi_tests/data/testset/features/'
+        # features_destination = '/media/the_beast/A/mathisi_tests/data/testset/features/'
 
         for t in self.tag:
             shutil.copy(self.input_path + t + '_amino_acid_tag_.csv', tag_destination)
@@ -147,12 +149,12 @@ class DataPipeline:
                 print(f"Distance file NOK: {t}")
                 pass
 
-        for t in self.tag:
-            try:
-                shutil.copy(features_input_path + t + '_feature.pickle.gz', features_destination)
-            except:
-                print(f"Feature file NOK: {t}")
-                pass
+        # for t in self.tag:
+        #     try:
+        #         shutil.copy(features_input_path + t + '_feature.pickle.gz', features_destination)
+        #     except:
+        #         print(f"Feature file NOK: {t}")
+        #         pass
 
 def main(input_path, target_length, dataset_size, model_type):
     datapipe = DataPipeline(input_path, target_length, dataset_size, model_type)

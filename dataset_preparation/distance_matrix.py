@@ -22,18 +22,25 @@ class DistanceMatrix:
         """
         with open(self.source_path + self.name.split('_')[0] + '_label.pickle', 'rb') as labels_file:
             holder = pickle.load(labels_file)
-            array = holder.numpy() # Convert pytorch tensor to numpy array to perform standardisation
+            # array = holder.numpy() # Convert pytorch tensor to numpy array to perform standardisation
 
             # scaler = StandardScaler() # Comment out if no standardisation is required
             # scaled_values = scaler.fit_transform(array) # Comment out if no standardisation is required
             # new_tensor = torch.from_numpy(scaled_values) # Comment out if no standardisation is required
 
-            normalised = preprocessing.normalize(array, norm='l2') # Comment out if no normalisation is required
-            new_tensor = torch.from_numpy(normalised) # Comment out if no normalisation is required
+            # normalised = preprocessing.normalize(array, norm='l2') # Comment out if no normalisation is required
+            # new_tensor = torch.from_numpy(normalised) # Comment out if no normalisation is required
 
             # new_tensor = torch.from_numpy(array) # Comment out if running standardisation or normalisation
 
-            # Take the upper triangle
+            # ------------------------------------------------------------------------------------------------ #
+
+            """New method of standardisation - divide through by the biggest distance in the sample set, which is 313"""
+
+            new_tensor = holder / 313
+
+            # Take the upper triangle by running through each value of the flattened tensor and selecting only the non zero values
+            # and appending the non zero values into a new list. Will then convert the list to a torch tensor
 
             upper_triangle = torch.triu(new_tensor, diagonal=1)
             flat = torch.flatten(upper_triangle)

@@ -2,15 +2,15 @@
 
 # Script to prepare the data for the message passing neural network
 
-# REMEMBER TO UPDATE ALL OF THE DIRECTORY NAMES
+# REMEMBER TO UPDATE ALL OF THE DIRECTORY NAMES ### VERY IMPORTANT
 
 echo Unpacking distance files...
 
-bash unzip.sh /media/the_beast/A/mathisi_tests/data/distance_matrix/
+bash unzip.sh /media/the_beast/A/mathisi_tests/data/transformed/testset/distance_matrix/
 
-echo Unpacking features files...
+# echo Unpacking features files...
 
-bash unzip.sh /media/the_beast/A/mathisi_tests/data/features/
+# bash unzip.sh /media/the_beast/A/mathisi_tests/data/features/
 
 echo Preparing adjacency matrix data...
 
@@ -26,23 +26,23 @@ echo -n "Please enter an option for z, the tensor dimension: "
 read z
 
 if [ $t == "nearest_neighbour"  ]; then
-  python3 ./dataset_preparation/run_adjacency_matrix.py -s /media/the_beast/A/mathisi_tests/data/tags/ -d /media/the_beast/A/mathisi_tests/data/$t/ -t $t -r $r -z $z
+  python3 ./dataset_preparation/run_adjacency_matrix.py -s /media/the_beast/A/mathisi_tests/data/transformed/testset/tags/ -d /media/the_beast/A/mathisi_tests/data/transformed/testset/$t/ -t $t -r $r -z $z
 else
-  python3 ./dataset_preparation/run_adjacency_matrix.py -s /media/the_beast/A/mathisi_tests/data/tags/ -d /media/the_beast/A/mathisi_tests/data/$t/ -t $t -z $z
+  python3 ./dataset_preparation/run_adjacency_matrix.py -s /media/the_beast/A/mathisi_tests/data/transformed/testset/tags/ -d /media/the_beast/A/mathisi_tests/data/transformed/testset/$t/ -t $t -z $z
 fi
 
 echo Preparing distance matrix labels...
 
-python3 ./dataset_preparation/run_distance_matrix.py -s /media/the_beast/A/mathisi_tests/data/distance_matrix/ -d /media/the_beast/A/mathisi_tests/data/$t/ -z $z
+python3 ./dataset_preparation/run_distance_matrix.py -s /media/the_beast/A/mathisi_tests/data/transformed/testset/distance_matrix/ -d /media/the_beast/A/mathisi_tests/data/transformed/testset/$t/ -z $z
 
 echo Preparing amino acid features
 
-python3 ./dataset_preparation/merge_aa_features.py -o /media/the_beast/A/mathisi_tests/data/tags/
+python3 ./dataset_preparation/merge_aa_features.py -o /media/the_beast/A/mathisi_tests/data/transformed/testset/tags/
 
 echo Preparing amino acid features to the same dimensions...
 
-mv /media/the_beast/A/mathisi_tests/data/tags/*features* /media/the_beast/A/mathisi_tests/data/temp/
+mv /media/the_beast/A/mathisi_tests/data/transformed/testset/tags/*features* /media/the_beast/A/mathisi_tests/data/transformed/testset/temp/
 
-python3 ./dataset_preparation/run_features_same_size.py -s /media/the_beast/A/mathisi_tests/data/temp/ -d /media/the_beast/A/mathisi_tests/data/$t/ -z $z
+python3 ./dataset_preparation/run_features_same_size.py -s /media/the_beast/A/mathisi_tests/data/transformed/testset/temp/ -d /media/the_beast/A/mathisi_tests/data/transformed/testset/$t/ -z $z
 
 echo Script complete. Now run the control scipts
