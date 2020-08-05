@@ -6,6 +6,12 @@ import shutil
 import argparse
 
 """
+Run this script first
+Then run data_prepare.sh
+Then run data_control.py
+"""
+
+"""
 DON'T FORGET TO CHANGE THE PATHS!!!!!!!
 """
 
@@ -16,7 +22,8 @@ INPUT_PATH IS ALWAYS /media/the_beast/disk/protein_folding/amino_acid_tags/
 parser = argparse.ArgumentParser(description='Dataset Pipeline')
 parser.add_argument('-i', '--input_path', help='The input path containing the amino acid tags of the proteins downloaded from the PDB', required=True) # Source for the amino acid tags (on Disk)
 parser.add_argument('-p', '--check_path', help='The path containing the train dataset, required only for creating the test dataset', required=False)
-parser.add_argument('-l', '--target_length', type=int, help='The upper limit of protein size', required=True)
+parser.add_argument('-u', '--upper_limit', type=int, help='The upper limit of protein size', required=True)
+parser.add_argument('-l', '--lower_limit', type=int, help='The lower limit of protein size', required=False)
 parser.add_argument('-s', '--dataset_size', type=int, help='Size of dataset to prepare', required=True)
 parser.add_argument('-m', '--model_type', help='Type of dataset to prepare, train or test', required=True)
 
@@ -24,20 +31,21 @@ args = parser.parse_args()
 
 input_path = args.input_path
 check_path = args.check_path
-target_length = args.target_length
+upper_limit = args.upper_limit
+lower_limit = args.lower_limit
 dataset_size = args.dataset_size
 model_type = args.model_type
 
 
 class DataPipeline:
 
-    def __init__(self, input_path,target_length, dataset_size, model_type):
+    def __init__(self, input_path,upper_limit, dataset_size, model_type):
         self.input_path = input_path
-        self.target_length = target_length
+        self.upper_limit = upper_limit
         self.dataset_size = dataset_size
         self.model_type = model_type
 
-    def create_train_dataset(self):
+    def create_train_dataset(self, lower_limit):
 
         self.counter = []
         self.tag = []
@@ -52,17 +60,18 @@ class DataPipeline:
                         if len(self.counter) > self.dataset_size - 1:
                             break
                         else:
-                            if count <= self.target_length:
-                                self.counter.append(count)
-                                self.tag.append(name.split('_')[0])
-                                print("{} {}".format(name.split('_')[0], count))
-                                print(f"Length of the dataset is currently: {len(self.tag)}")
+                            if count >= lower_limit:
+                                if count <= self.upper_limit:
+                                    self.counter.append(count)
+                                    self.tag.append(name.split('_')[0])
+                                    print("{} {}".format(name.split('_')[0], count))
+                                    print(f"Length of the dataset is currently: {len(self.tag)}")
         print(self.tag)
         print(f"Dataset size is: {len(self.tag)}\n")
 
         return self.tag, self.counter
 
-    def create_test_dataset(self, check_path):
+    def create_test_dataset(self, lower_limit, check_path):
 
         self.counter = []
         self.tag = []
@@ -88,11 +97,12 @@ class DataPipeline:
                             if len(self.counter) > self.dataset_size - 1:
                                 break
                             else:
-                                if count <= self.target_length:
-                                    self.counter.append(count)
-                                    self.tag.append(name.split('_')[0])
-                                    print("{} {}".format(name.split('_')[0], count))
-                                    print(f"Length of the dataset is currently: {len(self.tag)}")
+                                if count >= lower_limit:
+                                    if count <= self.upper_limit:
+                                        self.counter.append(count)
+                                        self.tag.append(name.split('_')[0])
+                                        print("{} {}".format(name.split('_')[0], count))
+                                        print(f"Length of the dataset is currently: {len(self.tag)}")
         print(self.tag)
         print(f"Dataset size is: {len(self.tag)}\n")
 
@@ -108,9 +118,9 @@ class DataPipeline:
 
     def prepare_train_set(self):
 
-        tag_destination = '/media/the_beast/A/mathisi_tests/data/transformed/tags/'
+        tag_destination = '/media/the_beast/B/mathisi_tests/data/closed_dataset/tags/'
         label_input_path = '/media/the_beast/disk/protein_folding/pickle_files/pickle_label_gz/'
-        distance_destination = '/media/the_beast/A/mathisi_tests/data/transformed/distance_matrix/'
+        distance_destination = '/media/the_beast/B/mathisi_tests/data/closed_dataset/distance_matrix/'
         features_input_path = '/media/the_beast/disk/protein_folding/pickle_files/pickle_features_gz/'
         # features_destination = '/media/the_beast/A/mathisi_tests/data/features/'
 
@@ -133,9 +143,9 @@ class DataPipeline:
 
     def prepare_test_set(self):
 
-        tag_destination = '/media/the_beast/A/mathisi_tests/data/transformed/testset/tags/'
+        tag_destination = '/media/the_beast/B/mathisi_tests/data/closed_dataset/testset/tags/'
         label_input_path = '/media/the_beast/disk/protein_folding/pickle_files/pickle_label_gz/'
-        distance_destination = '/media/the_beast/A/mathisi_tests/data/transformed/testset/distance_matrix/'
+        distance_destination = '/media/the_beast/B/mathisi_tests/data/closed_dataset/testset/distance_matrix/'
         features_input_path = '/media/the_beast/disk/protein_folding/pickle_files/pickle_features_gz/'
         # features_destination = '/media/the_beast/A/mathisi_tests/data/testset/features/'
 
@@ -156,16 +166,16 @@ class DataPipeline:
         #         print(f"Feature file NOK: {t}")
         #         pass
 
-def main(input_path, target_length, dataset_size, model_type):
-    datapipe = DataPipeline(input_path, target_length, dataset_size, model_type)
+def main(input_path, upper_limit, dataset_size, model_type):
+    datapipe = DataPipeline(input_path, upper_limit, dataset_size, model_type)
     if model_type == 'train':
-        datapipe.create_train_dataset()
+        datapipe.create_train_dataset(lower_limit)
         datapipe.dataset_statistics()
         datapipe.prepare_train_set()
     else:
-        datapipe.create_test_dataset(check_path)
+        datapipe.create_test_dataset(lower_limit, check_path)
         datapipe.dataset_statistics()
         datapipe.prepare_test_set()
 
 if __name__ == '__main__':
-    main(input_path, target_length, dataset_size, model_type)
+    main(input_path, upper_limit, dataset_size, model_type)
